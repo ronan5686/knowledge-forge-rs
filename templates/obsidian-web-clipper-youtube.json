@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "0.1.0",
+  "name": "Knowledge Forge — transcription YouTube à vérifier",
+  "behavior": "create",
+  "noteNameFormat": "{{date|date:\"YYYY-MM-DD-HHmmss\"}}-youtube-{{url|replace:\"/^.*[?&]v=/\":\"\"|replace:\"/[&#].*$/\":\"\"}}",
+  "path": "imports",
+  "noteContentFormat": "# Capture native YouTube à vérifier\n\n{{transcript}}",
+  "properties": [
+    {"name": "video_id", "value": "{{url|replace:\"/^.*[?&]v=/\":\"\"|replace:\"/[&#].*$/\":\"\"}}", "type": "text"},
+    {"name": "url", "value": "{{url}}", "type": "text"},
+    {"name": "captured_at", "value": "{{date}}", "type": "text"},
+    {"name": "published", "value": "{{published}}", "type": "text"},
+    {"name": "title", "value": "{{title}}", "type": "text"},
+    {"name": "author", "value": "{{author}}", "type": "text"},
+    {"name": "page_language", "value": "{{language}}", "type": "text"},
+    {"name": "caption_language", "value": "unknown", "type": "text"},
+    {"name": "caption_type", "value": "unknown", "type": "text"},
+    {"name": "status", "value": "needs_review", "type": "text"},
+    {"name": "capture_source", "value": "obsidian_web_clipper_native_transcript", "type": "text"}
+  ],
+  "triggers": ["https://www.youtube.com/watch", "https://youtube.com/watch", "https://m.youtube.com/watch"],
+  "context": ""
+}

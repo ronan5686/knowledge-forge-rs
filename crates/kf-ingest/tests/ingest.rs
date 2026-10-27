@@ -227,6 +227,79 @@ fn plain_markdown_and_text_preserve_complete_unicode_body() {
 }
 
 #[test]
+fn clipper_cannot_import_a_title_or_description_as_a_transcript() {
+    for body in [
+        "",
+        "\n",
+        "# Capture native YouTube à vérifier\n\n",
+        "# Video\nDescription only.",
+    ] {
+        let source =
+            format!("---\ncapture_source: obsidian_web_clipper_native_transcript\n---\n{body}");
+        for complete in [false, true] {
+            assert!(prepare(source.as_bytes(), "md", metadata(), complete).is_err());
+        }
+    }
+    assert!(
+        prepare(
+            "# Capture native YouTube à vérifier\n".as_bytes(),
+            "md",
+            metadata(),
+            false
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn clipper_page_language_is_not_caption_language_even_for_legacy_templates() {
+    for properties in [
+        "language: fr\n",
+        "page_language: fr\ncaption_language: unknown\n",
+        "page_language: fr\ncaption_language: und\n",
+    ] {
+        let source = format!(
+            "---\n{properties}capture_source: obsidian_web_clipper_native_transcript\n---\n# Capture\n**0:00** · Synthetic English.\n"
+        );
+        let doc = prepare(source.as_bytes(), "md", metadata(), false).unwrap();
+        assert_eq!(doc.metadata.language, None);
+        assert_eq!(doc.metadata.caption_kind, CaptionKind::Unknown);
+        assert_eq!(doc.segments[1].text, "Synthetic English.");
+    }
+    let source = "---\nlanguage: fr\ncapture_source: obsidian_web_clipper_native_transcript\ncaption_language: en\n---\n**0:00** · Synthetic English.\n";
+    let doc = prepare(source.as_bytes(), "md", metadata(), false).unwrap();
+    assert_eq!(doc.metadata.language.as_deref(), Some("en"));
+    let mut conflicting = metadata();
+    conflicting.language = Some("fr".into());
+    assert!(prepare(source.as_bytes(), "md", conflicting, false).is_err());
+}
+
+#[test]
+fn bundled_clipper_template_keeps_unknown_caption_language_and_rejects_empty_capture() {
+    let template: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../templates/obsidian-web-clipper-youtube.json"
+    ))
+    .unwrap();
+    let properties = template["properties"].as_array().unwrap();
+    assert!(!properties.iter().any(|p| p["name"] == "language"));
+    assert!(
+        properties
+            .iter()
+            .any(|p| p["name"] == "page_language" && p["value"] == "{{language}}")
+    );
+    assert!(
+        properties
+            .iter()
+            .any(|p| p["name"] == "caption_language" && p["value"] == "unknown")
+    );
+    let body = template["noteContentFormat"]
+        .as_str()
+        .unwrap()
+        .replace("{{transcript}}", "");
+    assert!(prepare(body.as_bytes(), "md", metadata(), false).is_err());
+}
+
+#[test]
 fn srt_and_vtt_cues_keep_precise_timing_and_text() {
     let srt = "1\r\n00:00:01,125 --> 00:00:03,500\r\nSynthetic first\r\nsecond line\r\n \r\n2\r\n00:00:04,000 --> 00:00:06,000\r\nSynthetic end\r\n";
     let doc = prepare(srt.as_bytes(), "srt", metadata(), false).unwrap();

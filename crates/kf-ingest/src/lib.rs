@@ -367,20 +367,33 @@ fn flat_property(value: &str) -> Result<String> {
     }
 }
 
-fn markdown_body<'a>(source: &'a str, metadata: &mut Metadata) -> Result<&'a str> {
+fn markdown_body<'a>(source: &'a str, metadata: &mut Metadata) -> Result<(&'a str, bool)> {
     let opening = if source.starts_with("---\r\n") {
         5
     } else if source.starts_with("---\n") {
         4
     } else {
-        return Ok(source);
+        return Ok((source, false));
     };
     let mut end = opening;
+    let mut native_clipper = false;
+    let mut language = None;
+    let mut caption_language = None;
     for line in source[opening..].split_inclusive('\n') {
         let trimmed = line.trim_end_matches(['\r', '\n']);
         end += line.len();
         if trimmed == "---" {
-            return Ok(&source[end..]);
+            // Web Clipper's `language` variable describes the page, not the
+            // caption track. Legacy marked captures must not attest it.
+            let attested = caption_language.as_deref().or({
+                if native_clipper {
+                    None
+                } else {
+                    language.as_deref()
+                }
+            });
+            attest_language(metadata, attested)?;
+            return Ok((&source[end..], native_clipper));
         }
         if end > 16_384 {
             return Err(invalid("capture frontmatter exceeds limit"));
@@ -390,7 +403,13 @@ fn markdown_body<'a>(source: &'a str, metadata: &mut Metadata) -> Result<&'a str
         };
         if !matches!(
             key,
-            "video_id" | "external_id" | "url" | "language" | "caption_type"
+            "video_id"
+                | "external_id"
+                | "url"
+                | "language"
+                | "caption_language"
+                | "caption_type"
+                | "capture_source"
         ) {
             continue;
         }
@@ -401,7 +420,11 @@ fn markdown_body<'a>(source: &'a str, metadata: &mut Metadata) -> Result<&'a str
         match key {
             "video_id" | "external_id" => attest_id(metadata, &value)?,
             "url" => attest_youtube_url(metadata, &value)?,
-            "language" => attest_language(metadata, Some(&value))?,
+            "language" => language = Some(value),
+            "caption_language" => caption_language = Some(value),
+            "capture_source" => {
+                native_clipper = value == "obsidian_web_clipper_native_transcript";
+            }
             "caption_type" => attest_kind(
                 metadata,
                 match value.as_str() {
@@ -418,7 +441,7 @@ fn markdown_body<'a>(source: &'a str, metadata: &mut Metadata) -> Result<&'a str
 }
 
 fn parse_markdown(source: &str, metadata: &mut Metadata) -> Result<(Vec<Segment>, &'static str)> {
-    let body = markdown_body(source, metadata)?;
+    let (body, native_clipper) = markdown_body(source, metadata)?;
     if body.contains("{{transcript}}") {
         return Err(invalid("unresolved transcript variable"));
     }
@@ -429,6 +452,15 @@ fn parse_markdown(source: &str, metadata: &mut Metadata) -> Result<(Vec<Segment>
                 !prefix.is_empty() && prefix.bytes().all(|b| b.is_ascii_digit())
             })
     }) {
+        if native_clipper
+            || body
+                .lines()
+                .any(|line| line.trim() == "# Capture native YouTube à vérifier")
+        {
+            return Err(invalid(
+                "YouTube capture has no timestamped transcript segments",
+            ));
+        }
         return Ok((plain(body), "plain_markdown"));
     }
     let mut segments: Vec<Segment> = Vec::new();
