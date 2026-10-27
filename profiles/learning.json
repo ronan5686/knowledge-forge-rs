@@ -1,0 +1,6 @@
+{
+  "memory": {"nudge_interval": 10},
+  "skills": {"creation_nudge_interval": 10, "write_approval": false, "external_dirs": [], "create_dir": "", "project_discovery": false, "inline_shell": false, "guard_agent_created": true, "ledger": true},
+  "auxiliary": {"background_review": {"enabled": true, "provider": "auto", "max_input_tokens": 48000, "extra_tools": []}},
+  "curator": {"enabled": true, "consolidate": false}
+}
