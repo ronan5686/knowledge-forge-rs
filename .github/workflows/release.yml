@@ -1,0 +1,42 @@
+name: Build release candidate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  artifact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Require reviewed third-party notices before preparing a binary candidate
+        # Deliberately fails until real native/dependency notices are generated
+        # and reviewed. A placeholder must not be added to bypass this gate.
+        run: test -s THIRD_PARTY_NOTICES.txt
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: 1.93.0
+      - run: cargo build -p kf-app --features inference --release --locked
+      - run: cargo install --locked cargo-cyclonedx --version 0.5.7
+      - run: cargo cyclonedx --format json --all-features --override-filename knowledge-forge-sbom
+      - name: Generate deterministic artifact list
+        run: |
+          mkdir -p release
+          cp target/release/knowledge-forge LICENSE NOTICE THIRD_PARTY_NOTICES.txt release/
+          find crates -name 'knowledge-forge-sbom*.json' -exec cp --parents '{}' release/ \;
+          test -n "$(find release -name 'knowledge-forge-sbom*.json' -print -quit)"
+          sha256sum release/knowledge-forge > release/SHA256SUMS
+      - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+        with:
+          subject-path: release/knowledge-forge
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: knowledge-forge-linux-x86_64
+          path: release/
+          retention-days: 7

@@ -1,0 +1,26 @@
+name: Scheduled dependency audit
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 5 * * 1'
+permissions:
+  contents: read
+jobs:
+  rustsec:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: 1.93.0
+      - run: cargo install --locked cargo-audit --version 0.22.2
+      - run: cargo install --locked cargo-deny --version 0.20.2
+      - name: Enforce all-features and all-platforms RSA exclusion
+        run: cargo deny --all-features check
+      - name: Audit with two reviewed named exceptions
+        # docs/security.md / ADR-001; no blanket suppression. An unexpected
+        # advisory remains fatal; a newly compiled rsa dependency is banned.
+        run: cargo audit --deny warnings --ignore RUSTSEC-2024-0436 --ignore RUSTSEC-2023-0071

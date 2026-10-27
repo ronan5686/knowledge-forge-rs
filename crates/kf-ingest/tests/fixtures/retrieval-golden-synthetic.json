@@ -1,0 +1,35 @@
+{
+  "fixture_role": "synthetic_ground_truth_not_a_measured_benchmark",
+  "documents": [
+    {"id":"synthetic-retry","publisher":"Publisher Alpha","source_id":"alpha","speaker":"Ada Example","language":"en","theme":"agents","text":"Retry only idempotent actions. Every attempt must keep an operation identifier."},
+    {"id":"synthetic-queue","publisher":"Publisher Beta","source_id":"beta","speaker":"Bruno Example","language":"fr","theme":"infrastructure","text":"La file de travail doit avoir une taille maximale. Un travail interrompu conserve son point de reprise."},
+    {"id":"synthetic-hybrid","publisher":"Publisher Alpha","source_id":"alpha","speaker":"Ada Example","language":"en","theme":"retrieval","text":"Hybrid retrieval combines lexical and semantic candidates. Rank fusion combines result positions rather than adding incomparable scores."},
+    {"id":"synthetic-citations","publisher":"Publisher Gamma","source_id":"gamma","speaker":"Cara Example","language":"fr","theme":"retrieval","text":"Une citation doit retrouver exactement les octets de la version citée. Un résumé ne remplace jamais la source originale."},
+    {"id":"synthetic-latency","publisher":"Publisher Delta","source_id":"delta","speaker":"Dana Example","language":"en","theme":"evaluation","text":"Measure warm and cold latency separately. A percentile target is not an observed production measurement."},
+    {"id":"synthetic-isolation","publisher":"Publisher Beta","source_id":"beta","speaker":"Bruno Example","language":"fr","theme":"isolation","text":"Une base séparée isole les droits si ses rôles sont correctement configurés. Elle ne réserve pas automatiquement de mémoire ou de processeur."},
+    {"id":"synthetic-versioning","publisher":"Publisher Gamma","source_id":"gamma","speaker":"Cara Example","language":"en","theme":"versioning","text":"Changing the tokenizer creates a new index generation. Keep document versions and model fingerprints when comparing retrieval results."},
+    {"id":"synthetic-captions","publisher":"Publisher Delta","source_id":"delta","speaker":"Dana Example","language":"fr","theme":"transcriptions","text":"Une piste de nature inconnue reste inconnue. La fin du fichier exporté ne prouve pas que tout l'audio a été transcrit."}
+  ],
+  "questions": [
+    {"id":"q01","query":"Which operations may be retried?","evidence":[{"id":"synthetic-retry","quote":"Retry only idempotent actions."}]},
+    {"id":"q02","query":"Quelle règle limite les actions rejouées ?","evidence":[{"id":"synthetic-retry","quote":"Retry only idempotent actions."}]},
+    {"id":"q03","query":"What happens when a worker is interrupted?","evidence":[{"id":"synthetic-queue","quote":"Un travail interrompu conserve son point de reprise."}]},
+    {"id":"q04","query":"Que faut-il borner dans une file de travail ?","evidence":[{"id":"synthetic-queue","quote":"La file de travail doit avoir une taille maximale."}]},
+    {"id":"q05","query":"How are lexical and semantic results combined?","evidence":[{"id":"synthetic-hybrid","quote":"Hybrid retrieval combines lexical and semantic candidates."}]},
+    {"id":"q06","query":"Pourquoi ne pas additionner directement les scores différents ?","evidence":[{"id":"synthetic-hybrid","quote":"Rank fusion combines result positions rather than adding incomparable scores."}]},
+    {"id":"q07","query":"How can we check a citation's exact source version?","evidence":[{"id":"synthetic-citations","quote":"Une citation doit retrouver exactement les octets de la version citée."}]},
+    {"id":"q08","query":"Un résumé peut-il remplacer les originaux ?","evidence":[{"id":"synthetic-citations","quote":"Un résumé ne remplace jamais la source originale."}]},
+    {"id":"q09","query":"Which latency states must be separated?","evidence":[{"id":"synthetic-latency","quote":"Measure warm and cold latency separately."}]},
+    {"id":"q10","query":"Un objectif de percentile est-il un résultat mesuré ?","evidence":[{"id":"synthetic-latency","quote":"A percentile target is not an observed production measurement."}]},
+    {"id":"q11","query":"Does a separate database guarantee CPU isolation?","evidence":[{"id":"synthetic-isolation","quote":"Elle ne réserve pas automatiquement de mémoire ou de processeur."}]},
+    {"id":"q12","query":"Que permet une base dont les rôles sont configurés ?","evidence":[{"id":"synthetic-isolation","quote":"Une base séparée isole les droits si ses rôles sont correctement configurés."}]},
+    {"id":"q13","query":"What should change after switching tokenizers?","evidence":[{"id":"synthetic-versioning","quote":"Changing the tokenizer creates a new index generation."}]},
+    {"id":"q14","query":"Quels repères garder pour comparer deux recherches ?","evidence":[{"id":"synthetic-versioning","quote":"Keep document versions and model fingerprints when comparing retrieval results."}]},
+    {"id":"q15","query":"Is unspecified caption authorship human?","evidence":[{"id":"synthetic-captions","quote":"Une piste de nature inconnue reste inconnue."}]},
+    {"id":"q16","query":"La fin d'un export garantit-elle toute la parole ?","evidence":[{"id":"synthetic-captions","quote":"La fin du fichier exporté ne prouve pas que tout l'audio a été transcrit."}]},
+    {"id":"q17","query":"What did Ada say about retrieval?","filters":{"speaker":"Ada Example","theme":"retrieval"},"evidence":[{"id":"synthetic-hybrid","quote":"Hybrid retrieval combines lexical and semantic candidates."}]},
+    {"id":"q18","query":"Find Gamma's English advice about tokenizers.","filters":{"source_id":"gamma","language":"en"},"evidence":[{"id":"synthetic-versioning","quote":"Changing the tokenizer creates a new index generation."}]},
+    {"id":"q19","query":"What was the company's revenue in 2025?","unanswerable":true,"evidence":[]},
+    {"id":"q20","query":"What is the measured top-10 recall of the production engine?","unanswerable":true,"evidence":[]}
+  ]
+}

@@ -1,0 +1,24 @@
+[graph]
+all-features = true
+# No target filter: evaluate the resolved graph for every platform.
+
+[advisories]
+ignore = [
+  { id = "RUSTSEC-2024-0436", reason = "Reviewed 2026-10-27: paste=1.0.15, checksum 57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a, compile-time tokenizers proc-macro; INFO unmaintained, not a vulnerability fix. Review before upgrades and by 2026-11-26. See docs/security.md and ADR-001." },
+]
+
+[licenses]
+confidence-threshold = 0.8
+allow = ["Apache-2.0", "Apache-2.0 WITH LLVM-exception", "MIT", "BSD-2-Clause", "BSD-3-Clause", "ISC", "Unicode-3.0", "Zlib", "CC0-1.0", "BSL-1.0", "CDLA-Permissive-2.0"]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+deny = [
+  { name = "rsa", reason = "RUSTSEC-2023-0071 is accepted only as an uncompiled SQLx-MySQL lock entry. Any introduction into the all-features/all-platforms graph must fail; see docs/security.md." },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

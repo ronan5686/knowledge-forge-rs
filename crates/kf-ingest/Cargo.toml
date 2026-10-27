@@ -1,0 +1,23 @@
+[package]
+name = "kf-ingest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+kf-core = { path = "../kf-core", version = "=0.1.0" }
+serde_json.workspace = true
+tempfile.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+proptest = "1"
+criterion = "=0.5.1"
+
+[[bench]]
+name = "conversion"
+harness = false
+
+[lints]
+workspace = true

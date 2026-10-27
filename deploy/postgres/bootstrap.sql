@@ -1,0 +1,25 @@
+-- Run once, as the administrator of the dedicated Knowledge Forge cluster.
+-- No role or database outside this cluster is changed.
+\set ON_ERROR_STOP on
+CREATE ROLE kf_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+CREATE ROLE kf_migrator LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 2;
+CREATE ROLE kf_ingest LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 5;
+CREATE ROLE kf_reader LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 5;
+CREATE ROLE kf_curator LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 3;
+GRANT kf_owner TO kf_migrator;
+ALTER DATABASE knowledge_forge OWNER TO kf_owner;
+REVOKE ALL ON DATABASE knowledge_forge FROM PUBLIC;
+GRANT CONNECT ON DATABASE knowledge_forge TO kf_migrator,kf_ingest,kf_reader,kf_curator;
+REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
+REVOKE CONNECT ON DATABASE template1 FROM PUBLIC;
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+ALTER SCHEMA public OWNER TO kf_owner;
+GRANT USAGE ON SCHEMA public TO kf_ingest,kf_reader,kf_curator;
+CREATE EXTENSION IF NOT EXISTS vector;
+ALTER ROLE kf_reader SET default_transaction_read_only = on;
+ALTER ROLE kf_reader SET statement_timeout = '15s';
+ALTER ROLE kf_curator SET statement_timeout = '15s';
+ALTER ROLE kf_ingest SET statement_timeout = '60s';
+ALTER ROLE kf_migrator SET lock_timeout = '10s';
+ALTER DEFAULT PRIVILEGES FOR ROLE kf_owner IN SCHEMA public REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+-- Per-table grants follow migrations; no broad default write grant is made.

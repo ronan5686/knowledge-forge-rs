@@ -1,0 +1,41 @@
+[Unit]
+Description=Knowledge Forge ingestion worker
+After=network-online.target knowledge-forge-query.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kf-ingest
+Group=kf-ingest
+SupplementaryGroups=kf-services kf-readers
+EnvironmentFile=/etc/hermes-connaissance/ingest.env
+ExecStart=/srv/hermes-connaissance/bin/knowledge-forge worker
+WorkingDirectory=/srv/hermes-connaissance
+Restart=on-failure
+RestartSec=10
+UMask=0027
+StateDirectory=knowledge-forge-ingest
+StateDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/srv/hermes-connaissance/data /var/lib/knowledge-forge-ingest /etc/hermes-connaissance/google
+InaccessiblePaths=/srv/hermes-connaissance/postgres /etc/hermes-connaissance/query.env /etc/hermes-connaissance/migrator.env /etc/hermes-connaissance/backup.env /etc/hermes-connaissance/postgres-admin.password /etc/hermes-connaissance/restic-password /etc/hermes-connaissance/restic-secrets-password
+MemoryHigh=1G
+MemoryMax=2G
+CPUQuota=100%
+TasksMax=96
+LimitNOFILE=2048
+
+[Install]
+WantedBy=multi-user.target

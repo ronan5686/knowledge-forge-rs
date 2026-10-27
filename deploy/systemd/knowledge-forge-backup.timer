@@ -1,0 +1,11 @@
+[Unit]
+Description=Knowledge Forge daily backup schedule (operator activation required)
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 Europe/Berlin
+RandomizedDelaySec=15m
+Persistent=true
+Unit=knowledge-forge-backup.service
+
+[Install]
+WantedBy=timers.target

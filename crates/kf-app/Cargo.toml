@@ -1,0 +1,53 @@
+[package]
+name = "kf-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "knowledge-forge"
+path = "src/main.rs"
+
+[features]
+default = []
+inference = ["dep:fastembed"]
+
+[dependencies]
+kf-core = { path = "../kf-core", version = "=0.1.0" }
+kf-ingest = { path = "../kf-ingest", version = "=0.1.0" }
+kf-store = { path = "../kf-store", version = "=0.1.0" }
+anyhow.workspace = true
+axum.workspace = true
+clap.workspace = true
+hex.workspace = true
+reqwest.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+sqlx.workspace = true
+tempfile.workspace = true
+time.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+url.workspace = true
+uuid.workspace = true
+rmcp = { version = "=3.8.0", features = ["server", "macros", "transport-io"] }
+tokenizers = { version = "=0.23.2", default-features = false, features = ["onig"] }
+fastembed = { version = "=7.5.0", default-features = false, features = ["onnx", "ort-download-binaries-rustls-tls"], optional = true }
+futures-util = "0.3"
+oauth2 = { version = "5", default-features = false, features = ["reqwest", "rustls-tls"] }
+fs2 = "0.4"
+toml = "0.8"
+tower = { version = "0.5", features = ["limit"] }
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+chrono-tz = "0.10"
+
+[dev-dependencies]
+proptest = "1"
+
+[lints]
+workspace = true

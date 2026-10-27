@@ -1,0 +1,56 @@
+name: knowledge-forge
+services:
+  postgres:
+    image: knowledge-forge-postgres:16.15-pgvector0.8.7
+    build:
+      context: ./postgres
+      args:
+        PGVECTOR_COMMIT: f37c13f68b57d2c3472b2214fbcff699d6d34876
+    container_name: knowledge-forge-postgres
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:55433:5432"
+    environment:
+      POSTGRES_DB: knowledge_forge
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=peer --data-checksums
+    secrets:
+      - postgres_admin
+    volumes:
+      - /srv/hermes-connaissance/postgres:/var/lib/postgresql/data
+    mem_limit: 3g
+    cpus: 1.0
+    pids_limit: 256
+    shm_size: 256m
+    stop_grace_period: 60s
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - work_mem=8MB
+      - -c
+      - maintenance_work_mem=128MB
+      - -c
+      - max_connections=30
+      - -c
+      - log_min_error_statement=panic
+      - -c
+      - log_statement=none
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d knowledge_forge"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+secrets:
+  postgres_admin:
+    file: /etc/hermes-connaissance/postgres-admin.password

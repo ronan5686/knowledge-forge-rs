@@ -1,0 +1,23 @@
+name: Optional synthetic Rust coverage
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-coverage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
+        with:
+          toolchain: 1.93.0
+          components: llvm-tools-preview
+      - name: Install pinned coverage tool
+        run: cargo install cargo-llvm-cov --locked --version 0.6.21
+      - name: Measure synthetic unit and integration coverage
+        # Database tests marked ignored require the separate disposable PG job.
+        # No model weights, Google credentials or private source corpus are used.
+        run: cargo llvm-cov --workspace --locked --text

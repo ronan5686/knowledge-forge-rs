@@ -1,0 +1,11 @@
+Knowledge Forge
+Copyright 2026 MAVIE Ingénierie and contributors.
+
+The original application source is licensed under Apache-2.0.
+Third-party dependencies retain their respective copyright and license terms.
+Generate and review the release SBOM before distributing a binary.
+
+Hermes, PostgreSQL, pgvector, model weights, tokenizers and source documents are
+independent integrations. Their inclusion in a deployment does not relicense
+them under this repository's license. Source documents and production data are
+not distributed by this repository. No affiliation with these projects is implied.

@@ -1,0 +1,35 @@
+[Unit]
+Description=Knowledge Forge private encrypted off-site backup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+SupplementaryGroups=kf-services
+EnvironmentFile=/etc/hermes-connaissance/backup.env
+ExecStart=/srv/hermes-connaissance/bin/knowledge-forge backup
+WorkingDirectory=/srv/hermes-connaissance
+UMask=0077
+TimeoutStartSec=3600
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH
+AmbientCapabilities=CAP_DAC_READ_SEARCH
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/srv/hermes-connaissance/backups
+InaccessiblePaths=/srv/hermes-connaissance/postgres /var/run/docker.sock /run/docker.sock
+MemoryHigh=768M
+MemoryMax=1G
+CPUQuota=50%
+TasksMax=64
+LimitNOFILE=1024

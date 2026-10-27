@@ -1,0 +1,26 @@
+[package]
+name = "knowledge-forge-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+rust-version = "1.93"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+kf-core = { path = "../crates/kf-core" }
+kf-ingest = { path = "../crates/kf-ingest" }
+serde_json = "1"
+
+[[bin]]
+name = "ingest_formats"
+path = "fuzz_targets/ingest_formats.rs"
+test = false
+doc = false
+bench = false
+
+[profile.release]
+debug = 1
+
